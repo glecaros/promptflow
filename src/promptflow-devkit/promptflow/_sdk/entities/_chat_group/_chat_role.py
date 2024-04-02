@@ -42,8 +42,7 @@ class ChatRole:
                  **kwargs):
         self._role = role
         self._flow, self._flow_object = self._validate_flow(flow)
-        if inputs is not None:
-            self._inputs, self._outputs = self._build_role_io(flow, inputs)
+        self._inputs, self._outputs = self._build_role_io(flow, inputs)
 
         # Below properties are used for cloud chat group. It may have some duplicate with above ones
         # Will evaluate and refine in the second step.
@@ -121,8 +120,12 @@ class ChatRole:
     def _build_role_io(self, flow: Union[str, PathLike], inputs_value: Dict = None):
         """Build role io"""
         logger.debug(f"Building io for chat role {self.role!r}.")
-        flow_dict = load_yaml(Path(flow) / DAG_FILE_NAME)
+        flow_file_path = Path(flow)
+        if flow_file_path.is_dir():
+            flow_file_path = flow_file_path / DAG_FILE_NAME
+        flow_dict = load_yaml(flow_file_path)
         inputs = flow_dict.get("inputs", {})
+        inputs_value = inputs_value or {}
         for key in inputs:
             # fill the inputs with the provided values
             # TODO: Shall we check the value type here or leave it to executor?
