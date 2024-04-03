@@ -3,6 +3,7 @@
 # ---------------------------------------------------------
 
 import json
+from copy import deepcopy
 from typing import Any, Dict
 
 from azure.cosmos.container import ContainerProxy
@@ -39,7 +40,7 @@ class Span:
         self.end_time = span.end_time.isoformat()
         self.status = span.status
         self.attributes = span.attributes
-        self.events = span.events
+        self.events = deepcopy(span.events)  # We still need events in the original span for LineSummary table.
         self.links = span.links
         self.resource = span.resource
         self.partition_key = collection_id
